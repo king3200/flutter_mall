@@ -4,7 +4,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Center(child: Text('这是首页'),),
+      child: Center(child: Text('这是首页22'),),
     );
   }
 }
