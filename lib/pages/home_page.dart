@@ -3,6 +3,7 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../service/service_url.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../config/service_url.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -30,7 +31,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
         title: Text('12320预约体检'),
       ),
       body: FutureBuilder(
-        future: getHomePageContent(),
+        future: getRequestData(servicePath['homePageContent']),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<Map> swiperData = (snapshot.data['swiper_data'] as List).cast();
@@ -54,6 +55,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                   ),
                   RecommandBanner(recommandData: recommandData),
                   FloorBanner(floorData: floorData),
+                  HotAreaBanner(),
                 ],
               ),
             );
@@ -304,6 +306,32 @@ class FloorBanner extends StatelessWidget {
           _getFloor2(),
         ],
       ),
+    );
+  }
+}
+
+
+class HotAreaBanner extends StatefulWidget {
+  @override
+  _HotAreaBannerState createState() => _HotAreaBannerState();
+}
+
+class _HotAreaBannerState extends State<HotAreaBanner> {
+
+  @override
+  void initState() {
+    getRequestData(servicePath['hotContent'], formData: {'page': 1}).then((val){
+      print('火爆专区数据获取完成:');
+      print(val);
+    });
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Text('Hello this is HotAreaBanner'),
     );
   }
 }

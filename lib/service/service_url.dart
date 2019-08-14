@@ -2,14 +2,19 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'dart:async';
-import '../config/service_url.dart';
 
-Future getHomePageContent() async {
+
+Future getRequestData(String url, {formData}) async {
   try {
     Response response;
     Dio dio = new Dio();
     dio.options.contentType = ContentType.parse('application/json');
-    response = await dio.get(servicePath['homePageContent']);
+    if(formData != null){
+      response = await dio.get(url, queryParameters: formData);
+    } else {
+      response = await dio.get(url);
+    }
+
     if(response.statusCode == 200) {
       return response.data;
     } else {
