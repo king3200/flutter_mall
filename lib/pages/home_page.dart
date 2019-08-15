@@ -318,20 +318,77 @@ class HotAreaBanner extends StatefulWidget {
 
 class _HotAreaBannerState extends State<HotAreaBanner> {
 
+  int page = 0;
+  List itemList = [];
+
   @override
   void initState() {
-    getRequestData(servicePath['hotContent'], formData: {'page': 1}).then((val){
-      print('火爆专区数据获取完成:');
-      print(val);
+    getRequestData(servicePath['hotContent'], formData: {'page': page}).then((val){
+      print('火爆专区数据获取完成:${val}');
+      setState(() {
+        itemList.addAll(val);
+      });
     });
 
     super.initState();
   }
 
+  Widget _getHeader() {
+    return Container(
+      alignment: Alignment.center,
+      child: Text('火爆专区'),
+    );
+  }
+
+  List<Widget> _getWrapList() {
+
+    if(itemList.length > 0) {
+      List<Widget> warpList = itemList.map((val){
+        return InkWell(
+          onTap: (){},
+          child: Container(
+            width: ScreenUtil().setWidth(372),
+            child: Column(
+              children: <Widget>[
+                Text(val['title']),
+                Image.network(
+                  val['img'],
+                  width: ScreenUtil().setWidth(370),
+                  height: ScreenUtil().setHeight(370),
+                ),
+                Text(val['price']),
+                Text(
+                  val['price'],
+                  style: TextStyle(
+                      color: Colors.black12,
+                      decoration: TextDecoration.lineThrough
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      }).toList();
+      return warpList;
+    } else {
+      return [Text('数据加载中')];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Container(
-      child: Text('Hello this is HotAreaBanner'),
+      child: Column(
+        children: <Widget>[
+          _getHeader(),
+          Wrap(
+            spacing: 2,
+            children: _getWrapList()
+          )
+        ],
+      )
     );
+
   }
 }
