@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../service/service_url.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../config/service_url.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -14,11 +15,18 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   @override
   bool get wantKeepAlive => true;
 
+  int page = 0;
+  List itemList = [];
+
+  GlobalKey<RefreshFooterState> _footerKey = new GlobalKey<RefreshFooterState>();
+
   @override
   void initState() {
-    print('1111111111111111');
+
+
     super.initState();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +49,30 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                 snapshot.data['phone_banner'] as Map<String, dynamic>;
             List<Map> recommandData = (snapshot.data['recommand'] as List).cast();
             Map<String, dynamic> floorData = snapshot.data['floor_data'];
-            return SingleChildScrollView(
-              child: Column(
+            return EasyRefresh(
+              refreshFooter: ClassicsFooter(
+                key: _footerKey,
+                bgColor: Colors.white,
+                loadedText: '加载完成',
+                loadText: '加载更多',
+                loadReadyText: '释放加载更多',
+                noMoreText: '没有更多数据',
+                loadingText: '加载中...',
+                textColor: Colors.pinkAccent,
+              ),
+              autoLoad: true,
+              loadMore: () async {
+                await getRequestData(servicePath['hotContent'], formData: {'page': page}).then((val) {
+                  setState(() {
+                    page += 1;
+                    itemList.addAll(val);
+                  });
+                });
+              },
+              onRefresh: () async {
+                print('上拉刷新');
+              },
+              child: ListView(
                 children: <Widget>[
                   TDSwiper(swiperData: swiperData),
                   CategoryBtnGroup(categoryData: categoryData),
@@ -55,7 +85,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                   ),
                   RecommandBanner(recommandData: recommandData),
                   FloorBanner(floorData: floorData),
-                  HotAreaBanner(),
+                  _getHotArea(),
                 ],
               ),
             );
@@ -67,6 +97,51 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
         },
       ),
     );
+  }
+
+  Widget _getHotArea() {
+    Widget _getHeader() {
+      return Container(
+        alignment: Alignment.center,
+        child: Text('火爆专区'),
+      );
+    }
+
+    List<Widget> _getWrapList() {
+      if (itemList.length > 0) {
+        List<Widget> warpList = itemList.map((val) {
+          return InkWell(
+            onTap: () {},
+            child: Container(
+              width: ScreenUtil().setWidth(372),
+              child: Column(
+                children: <Widget>[
+                  Text(val['title']),
+                  Image.network(
+                    val['img'],
+                    width: ScreenUtil().setWidth(370),
+                    height: ScreenUtil().setHeight(370),
+                  ),
+                  Text(val['price']),
+                  Text(
+                    val['price'],
+                    style: TextStyle(color: Colors.black12, decoration: TextDecoration.lineThrough),
+                  )
+                ],
+              ),
+            ),
+          );
+        }).toList();
+        return warpList;
+      } else {
+        return [Text('数据加载中')];
+      }
+    }
+
+    return Container(
+        child: Column(
+      children: <Widget>[_getHeader(), Wrap(spacing: 2, children: _getWrapList())],
+    ));
   }
 }
 
@@ -307,88 +382,5 @@ class FloorBanner extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-
-class HotAreaBanner extends StatefulWidget {
-  @override
-  _HotAreaBannerState createState() => _HotAreaBannerState();
-}
-
-class _HotAreaBannerState extends State<HotAreaBanner> {
-
-  int page = 0;
-  List itemList = [];
-
-  @override
-  void initState() {
-    getRequestData(servicePath['hotContent'], formData: {'page': page}).then((val){
-      print('火爆专区数据获取完成:${val}');
-      setState(() {
-        itemList.addAll(val);
-      });
-    });
-
-    super.initState();
-  }
-
-  Widget _getHeader() {
-    return Container(
-      alignment: Alignment.center,
-      child: Text('火爆专区'),
-    );
-  }
-
-  List<Widget> _getWrapList() {
-
-    if(itemList.length > 0) {
-      List<Widget> warpList = itemList.map((val){
-        return InkWell(
-          onTap: (){},
-          child: Container(
-            width: ScreenUtil().setWidth(372),
-            child: Column(
-              children: <Widget>[
-                Text(val['title']),
-                Image.network(
-                  val['img'],
-                  width: ScreenUtil().setWidth(370),
-                  height: ScreenUtil().setHeight(370),
-                ),
-                Text(val['price']),
-                Text(
-                  val['price'],
-                  style: TextStyle(
-                      color: Colors.black12,
-                      decoration: TextDecoration.lineThrough
-                  ),
-                )
-              ],
-            ),
-          ),
-        );
-      }).toList();
-      return warpList;
-    } else {
-      return [Text('数据加载中')];
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
-    return Container(
-      child: Column(
-        children: <Widget>[
-          _getHeader(),
-          Wrap(
-            spacing: 2,
-            children: _getWrapList()
-          )
-        ],
-      )
-    );
-
   }
 }
