@@ -3,17 +3,19 @@
 class CategoryType {
   String code;
   String message;
-  List<Data> data;
+  List<CategoryTypeData> dataList;
 
-  CategoryType({this.code, this.message, this.data});
+  CategoryType({this.code, this.message, this.dataList});
 
   CategoryType.fromJson(Map<String, dynamic> json) {
+    print(json);
+
     code = json['code'];
     message = json['message'];
     if (json['data'] != null) {
-      data = new List<Data>();
+      dataList = new List<CategoryTypeData>();
       json['data'].forEach((v) {
-        data.add(new Data.fromJson(v));
+        dataList.add(new CategoryTypeData.fromJson(v));
       });
     }
   }
@@ -22,28 +24,28 @@ class CategoryType {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['code'] = this.code;
     data['message'] = this.message;
-    if (this.data != null) {
-      data['data'] = this.data.map((v) => v.toJson()).toList();
+    if (this.dataList != null) {
+      data['data'] = this.dataList.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
-class Data {
+class CategoryTypeData {
   String mallCategoryId;
   String mallCategoryName;
   List<BxMallSubDto> bxMallSubDto;
-  Null comments;
+  String comments;
   String image;
 
-  Data(
+  CategoryTypeData(
       {this.mallCategoryId,
         this.mallCategoryName,
         this.bxMallSubDto,
         this.comments,
         this.image});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  CategoryTypeData.fromJson(Map<String, dynamic> json) {
     mallCategoryId = json['mallCategoryId'];
     mallCategoryName = json['mallCategoryName'];
     if (json['bxMallSubDto'] != null) {
