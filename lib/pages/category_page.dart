@@ -25,6 +25,11 @@ class _CategoryPageState extends State<CategoryPage> {
         child: Row(
           children: <Widget>[
             LeftCategoryNav(),
+            Column(
+              children: <Widget>[
+                RightCategoryNav(),
+              ],
+            )
           ],
         ),
       ),
@@ -80,10 +85,61 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
         border: Border(right: BorderSide(color: Colors.black26, width: 1))
       ),
       child: ListView.builder(
-        itemCount: itemList.length,
+        itemCount: itemList == null ? 0 : itemList.length,
         itemBuilder: (context, index){
           return _categoryItem(index);
         },
+      ),
+    );
+  }
+}
+
+
+class RightCategoryNav extends StatefulWidget {
+  @override
+  _RightCategoryNavState createState() => _RightCategoryNavState();
+}
+
+class _RightCategoryNavState extends State<RightCategoryNav> {
+
+  final List<String> itemList = ['键盘', '鼠标', '显示器', '笔记本', '兼容机', '散热器', 'test'];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(width: 1, color: Colors.black12)
+        )
+      ),
+      width: ScreenUtil().setWidth(570),
+      height: ScreenUtil().setHeight(80),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: itemList.length,
+        itemBuilder: (context, index) {
+          return _CategoryBtn(itemList[index]);
+        },
+      ),
+
+    );
+  }
+
+  Widget _CategoryBtn(String btnText) {
+    return InkWell(
+      onTap: (){
+        print('1111111');
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            right: BorderSide(width: 1, color: Colors.black12)
+          )
+        ),
+        padding: EdgeInsets.fromLTRB(5.0, 10.0, 5.0, 10.0),
+//        height: ScreenUtil().setHeight(80),
+        child: Text(btnText, style: TextStyle(fontSize: ScreenUtil().setSp(25.0)),),
       ),
     );
   }
